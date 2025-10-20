@@ -12,9 +12,18 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from datetime import timedelta
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Initialize environment
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+# Read the .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -49,6 +58,12 @@ THIRD_PARTY_APPS = [
 ]
 
 SELF_APPS = [
+    # Modules apps
+    "apps.modules.expenses",
+    "apps.modules.budgets",
+    "apps.modules.users",
+
+    # Core apps
     "apps.core",
 ]
 
@@ -100,11 +115,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "your-db-name",
-        "USER": "your-db-user",
-        "PASSWORD": "your-db-user-password",
-        "HOST": "your-db-host",
-        "PORT": "your-db-port",
+        "NAME": env("DATABASES_NAME"),
+        "USER": env("DATABASES_USER"),
+        "PASSWORD": env("DATABASES_PASSWORD"),
+        "HOST": env("DATABASES_HOST"),
+        "PORT": env("DATABASES_PORT"),
     }
 }
 
@@ -115,13 +130,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'apps.common.pagination.Pagination',
     'PAGE_SIZE': 10,
+    'DATETIME_FORMAT': '%d %b %Y',
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
+}
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'apps.core.serializers.CurrentUserSerializer'
 }
 
 

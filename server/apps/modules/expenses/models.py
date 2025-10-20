@@ -6,7 +6,8 @@ from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
 
-from common import utils
+from apps.common import utils
+from apps.common.models import BaseModel
 
 # Create your models here.
 
@@ -242,7 +243,7 @@ class ExpenseManager(models.Manager):
         return statistics
 
 
-class Expense(models.Model):
+class Expense(BaseModel):
     amount = models.DecimalField(
         blank=False,
         default=10,
@@ -278,4 +279,9 @@ class Expense(models.Model):
         return date_without_time
 
     class Meta:
+        """
+        Meta options for Expense.
+        """
+        
+        db_table = "expenses"
         ordering = ["-date"]

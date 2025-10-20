@@ -36,7 +36,7 @@ def login_view(request):
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
-def register_view(request):
+def create_view(request):
     username = request.data.get('username')
     password = request.data.get('password')
 

@@ -1,11 +1,20 @@
+"""
+Common utility functions and classes.
+"""
+
+# Third party imports
 import json
 from datetime import date, datetime, timedelta
-
 from dateutil.relativedelta import relativedelta
+
+# Django imports
 from django.db.models import Sum
 
 
 def get_data_from_json(file):
+    """
+    Reads a JSON file and returns the data as a dictionary.
+    """
     with open(file) as f:
         data = json.load(f)
     return data
@@ -25,6 +34,9 @@ def safely_round(val, decimals=2):
 
 
 def get_percentage_diff(a, b):
+    """
+    Returns the percentage difference between two numbers.
+    """
     if a == 0 or b == 0:
         return 0
     return safely_round(((a / b) * 100), 2)
@@ -53,14 +65,23 @@ def get_month_num(month_timedelta_num=0):
 
 
 def get_year_num():
+    """
+    Returns the current year.
+    """
     return date.today().year
 
 
 def reformat_date(date, format):
+    """
+    Takes a date and a format string as parameters and returns the date formatted according to the format string.
+    """
     return date.strftime(format)
 
 
 def get_first_and_last_day_of_current_month():
+    """
+    Returns the first and last day of the current month as datetime objects.
+    """
     today = datetime.now()
     first_day_of_current_month = today.replace(day=1)
     next_month_date = today + relativedelta(months=+1)
@@ -73,6 +94,9 @@ def get_first_and_last_day_of_current_month():
 
 
 def get_months_list():
+    """
+    Returns a list of all months in a year.
+    """
     return [
         "January",
         "February",
@@ -98,6 +122,9 @@ def daterange(date1, date2):
 
 
 def get_yearly_month_expense_data(year, user_expenses):
+    """
+    Returns a dictionary with the monthly expenses for a given year.
+    """
     yearly_month_expense_data = {}
     months = get_months_list()
     year = int(year)
@@ -125,6 +152,9 @@ class DateGenerator:
 
     @staticmethod
     def get_date(date=None):
+        """
+        Returns a datetime object for the given date string or today's date if no date is provided.
+        """
         if date is not None:
             return datetime.strptime(str(date), "%Y-%m-%d")
         else:
@@ -132,42 +162,63 @@ class DateGenerator:
 
     @staticmethod
     def get_date_one_week_ago():
+        """
+        Returns the date one week ago from today in 'yyyy-mm-dd' format.
+        """
         todays_date = DateGenerator.get_date()
         changed_date = todays_date + timedelta(days=-7)
         return DateGenerator.get_formated_date(changed_date)
 
     @staticmethod
     def get_date_two_week_ago():
+        """
+        Returns the date two weeks ago from today in 'yyyy-mm-dd' format.
+        """
         todays_date = DateGenerator.get_date()
         changed_date = todays_date + timedelta(days=-14)
         return DateGenerator.get_formated_date(changed_date)
 
     @staticmethod
     def get_date_three_week_ago():
+        """
+        Returns the date three weeks ago from today in 'yyyy-mm-dd' format.
+        """
         todays_date = DateGenerator.get_date()
         changed_date = todays_date + timedelta(days=-21)
         return DateGenerator.get_formated_date(changed_date)
 
     @staticmethod
     def get_date_one_month_ago():
+        """
+        Returns the date one month ago from today in 'yyyy-mm-dd' format.
+        """
         todays_date = DateGenerator.get_date()
         changed_date = todays_date + relativedelta(months=-1)
         return DateGenerator.get_formated_date(changed_date)
 
     @staticmethod
     def get_date_two_months_ago():
+        """
+        Returns the date two months ago from today in 'yyyy-mm-dd' format.
+        """
         todays_date = DateGenerator.get_date()
         changed_date = todays_date + relativedelta(months=-2)
         return DateGenerator.get_formated_date(changed_date)
 
     @staticmethod
     def get_date_three_months_ago():
+        """
+        Returns the date three months ago from today in 'yyyy-mm-dd' format.
+        """
         todays_date = DateGenerator.get_date()
         changed_date = todays_date + relativedelta(months=-3)
         return DateGenerator.get_formated_date(changed_date)
 
     @staticmethod
     def modify_date_with_timedelta(date, num_days):
+        """
+        Modifies a given date by adding or subtracting a number of days.
+        """
         todays_date = DateGenerator.get_date(date) if date else DateGenerator.get_date()
         changed_date = todays_date + timedelta(days=num_days)
         return DateGenerator.get_formated_date(changed_date)
@@ -197,6 +248,9 @@ class ExpenseGenerator:
         self.expenses_by_date = expenses_by_date
 
     def generate_expenses(self):
+        """
+        Generates an array of expenses with assigned and modified dates.
+        """
         expenses = []
 
         for date_section in self.expenses_by_date:
@@ -215,6 +269,9 @@ class ExpenseGenerator:
         return expenses
 
     def assign_date_to_expense(self, date, expense):
+        """
+        Assigns a date to an expense based on the given date string.
+        """
         if date == "today":
             expense["date"] = DateGenerator.get_formated_date()
         elif date == "one_week_ago":

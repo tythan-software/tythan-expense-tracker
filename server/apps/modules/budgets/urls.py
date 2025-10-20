@@ -1,9 +1,11 @@
 from django.urls import path
-from modules.budgets import views
+from apps.modules.budgets import views
+
+URL_BASIC = "budgets"
 
 urlpatterns = [
-    path('budget/', views.get_budget, name='get_budget'),
-    path('budget/create/', views.create_budget, name='create_budget'),
-    path('budget/update/<int:pk>/', views.update_budget, name='update_budget'),
-    path('budget/delete/<int:pk>/', views.delete_budget, name='delete_budget'),
+    path(f'{URL_BASIC}', views.get_budget),
+    path(f'{URL_BASIC}', views.create_budget),
+    path(f'{URL_BASIC}/<int:pk>/', views.update_budget),
+    path(f'{URL_BASIC}/<int:pk>/', views.delete_budget),
 ]

@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from modules.budgets.models import Budget
-from modules.budgets.serializers import BudgetSerializer
+from apps.modules.budgets.models import Budget
+from apps.modules.budgets.serializers import BudgetSerializer
 
 # Create your views here.
 

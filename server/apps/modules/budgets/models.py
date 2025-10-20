@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from apps.common.models import BaseModel
+
 # Create your models here.
 
 class BudgetManager(models.Manager):
@@ -17,7 +19,7 @@ class BudgetManager(models.Manager):
             test_user_budget.delete()
 
 
-class Budget(models.Model):
+class Budget(BaseModel):
     amount = models.DecimalField(
         default=10,
         decimal_places=2,
@@ -30,3 +32,10 @@ class Budget(models.Model):
 
     def __str__(self):
         return str(self.amount)
+    
+    class Meta:
+        """
+        Meta options for Budget.
+        """
+        
+        db_table = "budgets"

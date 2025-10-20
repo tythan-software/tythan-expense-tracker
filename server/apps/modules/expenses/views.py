@@ -7,15 +7,19 @@ from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from common import utils
-from modules.expenses.models import Expense
-from modules.expenses.serializers import ExpenseSerializer
+from apps.common import utils
+from apps.modules.expenses.models import Expense
+from apps.modules.expenses.serializers import ExpenseSerializer
 
 # Create your views here.
 
 
 @api_view(['GET'])
 def get_expenses(request):
+    """
+    API endpoint that allows users to get their expenses.
+    """
+
     expenses = Expense.objects.filter(
         owner=request.user).order_by("-date")
     serializer = ExpenseSerializer(expenses, many=True)

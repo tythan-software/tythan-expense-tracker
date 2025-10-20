@@ -1,9 +1,7 @@
 from django.urls import include, path
 
-app_name = "apps.core"
-
 urlpatterns = [
-    path('api/', include('modules.users.urls'), name='users'),
-    path('api/', include('modules.budgets.urls'), name='budgets'),
-    path('api/', include('modules.expenses.urls'), name='expenses'),
+    path('', include('apps.modules.users.urls'), name='users'),
+    path('', include('apps.modules.budgets.urls'), name='budgets'),
+    path('', include('apps.modules.expenses.urls'), name='expenses'),
 ]

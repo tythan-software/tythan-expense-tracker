@@ -1,9 +1,10 @@
-# Standard library imports
-import uuid
+"""
+Common models for the application.
+"""
 
 # Django imports
-from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 # Django Rest Framework imports
@@ -12,11 +13,16 @@ from django.utils.translation import gettext_lazy as _
 
 # Local imports
 
-user_model = settings.AUTH_USER_MODEL
-
 
 class IsDeletedManager(models.Manager):
+    """
+    Manager to filter out soft-deleted objects by default.
+    """
+
     def get_queryset(self):
+        """
+        Override the default queryset to exclude soft-deleted objects.
+        """
         return super().get_queryset().filter(is_deleted=False)
 
 
@@ -25,12 +31,8 @@ class BaseModel(models.Model):
     Tracks instance creations, updates, and (soft) deletions.
     """
 
-    uuid = models.UUIDField(
-        verbose_name=_("UUID"), unique=True, default=uuid.uuid4, editable=False
-    )
-
     created_by = models.ForeignKey(
-        to=user_model,
+        to=User,
         verbose_name=_("Created by"),
         null=True,
         blank=True,
@@ -43,10 +45,11 @@ class BaseModel(models.Model):
         auto_now_add=True,
         editable=False,
         db_index=True,
+        null=True,
     )
 
     updated_by = models.ForeignKey(
-        to=user_model,
+        to=User,
         verbose_name=_("Updated by"),
         null=True,
         blank=True,
@@ -62,7 +65,7 @@ class BaseModel(models.Model):
     )
 
     deleted_by = models.ForeignKey(
-        to=user_model,
+        to=User,
         verbose_name=_("Deleted by"),
         null=True,
         blank=True,
@@ -81,4 +84,7 @@ class BaseModel(models.Model):
     objects_all = models.Manager()
 
     class Meta:
+        """
+        Abstract base class for all models in the app. Not a real table
+        """
         abstract = True

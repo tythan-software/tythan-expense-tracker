@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from modules.expenses.models import Budget
+from apps.modules.budgets.models import Budget
      
 class BudgetSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,5 +1,5 @@
 from django.urls import path
-from modules.expenses import views
+from apps.modules.expenses import views
 
 urlpatterns = [
     path('expenses/', views.get_expenses, name='get_expenses'),

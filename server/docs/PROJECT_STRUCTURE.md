@@ -20,7 +20,7 @@ Expense-Tracker/
 ├── apps/               # All Django apps live here
 │   ├── core/           # Only the "presentation" layer exists here.
 │   │   ├── __init__.py
-│   │   ├── admin.py
+│   │   ├── auth.py     # Urls of django.contrib.auth
 │   │   ├── apps.py
 │   │   ├── urls.py
 │   │   ├── exceptions.py
@@ -37,6 +37,7 @@ Expense-Tracker/
 │   ├── modules/ 
 │   │   ├── users/          # Example module
 │   │   │   ├── __init__.py
+│   │   |   ├── admin.py
 │   │   │   ├── models.py
 │   │   │   ├── views.py
 │   │   │   ├── urls.py
