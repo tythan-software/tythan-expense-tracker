@@ -22,51 +22,10 @@ Expense Tracker is application that can help you track and list expenses, and al
 
 ## Project Structure
 
-expense-tracker/  
+expense-tracker/
 |── client/ # React Frontend  
 |── server/ # Python + Django Backend  
 |── README.md
-
----
-
-## Local Setup Instructions
-
-1. **Setup Backend (Server)**
-    ```
-    Install packages:
-
-        pipenv install
-
-    This will install the virtual environments and all dependencies.
-
-    Now start the virtual environment shell:
-
-        pipenv shell
-
-    Run migrations:
-
-        python manage.py makemigrations
-        python manage.py migrate
-
-    Create superuser:
-
-        python manage.py createsuperuser
-
-    Now you can start server...
-
-        python manage.py runserver
-
-    ...and visit http://localhost:8000/
-
-2. **Setup Frontend (Client)**
-   ```
-    cd client
-    npm install
-    npm start
-  
-3. **Access the app at**
-   ```
-   http://localhost:3000
 
 ---
 
