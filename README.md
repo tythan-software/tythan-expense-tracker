@@ -29,5 +29,3 @@ expense-tracker/
 |── client/ # React Frontend  
 |── server/ # Python + Django Backend  
 |── README.md
-
----

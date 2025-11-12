@@ -1,30 +1,32 @@
 **Setup Backend (Server)**
-    ```
-    Install packages:
+    
+```
+Install packages:
 
-        pipenv install
+    pipenv install
 
-    This will install the virtual environments and all dependencies.
+This will install the virtual environments and all dependencies.
 
-    Now start the virtual environment shell:
+Now start the virtual environment shell:
 
-        pipenv shell
+    pipenv shell
 
-    Run migrations:
+Run migrations:
 
-        python manage.py makemigrations
-        python manage.py migrate
+    python manage.py makemigrations
+    python manage.py migrate
 
-    Create superuser:
+Create superuser:
 
-        python manage.py createsuperuser
+    python manage.py createsuperuser
 
-    Run data:
-        python manage.py seed_data
-        python manage.py clear_db
+Run data:
 
-    Now you can start server...
+    python manage.py seed_data
+    python manage.py clear_db
 
-        python manage.py runserver
+Now you can start server...
 
-    ...and visit http://localhost:8000/
+    python manage.py runserver
+
+...and visit http://localhost:8000/
