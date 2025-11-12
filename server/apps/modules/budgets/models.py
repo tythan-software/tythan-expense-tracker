@@ -6,19 +6,12 @@ from django.db import models
 
 from apps.common.models import BaseModel
 
-# Create your models here.
-
 class BudgetManager(models.Manager):
     def get_budget(self, owner):
         budget = Budget.objects.filter(owner=owner).first()
         return budget.amount if budget else 0
     
-    def delete_testuser_budget(self, request):
-        if str(request.user) == "testuser1" or str(request.user) == "testuser3":
-            test_user_budget = Budget.objects.all()
-            test_user_budget.delete()
-
-
+    
 class Budget(BaseModel):
     amount = models.DecimalField(
         default=10,

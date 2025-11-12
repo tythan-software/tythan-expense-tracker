@@ -1,11 +1,6 @@
-from django.urls import path
-from apps.modules.budgets import views
+from rest_framework.routers import DefaultRouter
+from apps.modules.budgets.views import BudgetViewSet
 
-URL_BASIC = "budgets"
-
-urlpatterns = [
-    path(f'{URL_BASIC}', views.get_budget),
-    path(f'{URL_BASIC}', views.create_budget),
-    path(f'{URL_BASIC}/<int:pk>/', views.update_budget),
-    path(f'{URL_BASIC}/<int:pk>/', views.delete_budget),
-]
+router = DefaultRouter()
+router.register(r'budgets', BudgetViewSet, basename='budgets')
+urlpatterns = router.urls

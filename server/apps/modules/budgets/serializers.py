@@ -4,4 +4,4 @@ from apps.modules.budgets.models import Budget
 class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
-        fields = '__all__'
+        fields = ['amount']

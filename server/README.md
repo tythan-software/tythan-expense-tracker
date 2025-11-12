@@ -19,7 +19,7 @@
 
         python manage.py createsuperuser
 
-    Seed data:
+    Run data:
         python manage.py seed_data
         python manage.py clear_db
 

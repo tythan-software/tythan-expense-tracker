@@ -2,16 +2,13 @@
 Custom user model.
 """
 
-# Django imports
 from django.contrib.auth.models import User
 from django.db import models
-
 
 class CustomUser(User):
     """
     Custom user model extending AbstractUser.
     """
-
     # Add your custom fields here
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
@@ -22,5 +19,4 @@ class CustomUser(User):
         """
         Meta options for CustomUser.
         """
-        
         db_table = "users"

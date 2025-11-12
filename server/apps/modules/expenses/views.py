@@ -1,229 +1,190 @@
-import json
-
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+from apps.core.viewsets import AuthViewSet
 from apps.common import utils
+from apps.common.permissions import IsOwnerOnly
 from apps.modules.expenses.models import Expense
 from apps.modules.expenses.serializers import ExpenseSerializer
 
-# Create your views here.
-
-
-@api_view(['GET'])
-def get_expenses(request):
+@extend_schema(tags=['Expenses'])
+class ExpenseViewSet(AuthViewSet):
     """
-    API endpoint that allows users to get their expenses.
+    API for managing user expenses.
     """
-
-    expenses = Expense.objects.filter(
-        owner=request.user).order_by("-date")
-    serializer = ExpenseSerializer(expenses, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def get_paginated_expenses(request):
-    Expense.objects.add_testuser_expenses(request)
-
-    expenses = Expense.objects.filter(
-        owner=request.user).order_by("-date")
-
-    # Initialize the pagination
-    paginator = PageNumberPagination()
-    paginator.page_size = 10
-
-    # Paginate the queryset
-    paginated_queryset = paginator.paginate_queryset(expenses, request)
-
-    # Serialize the paginated result
-    serializer = ExpenseSerializer(paginated_queryset, many=True)
-    return paginator.get_paginated_response(serializer.data)
-
-
-@api_view(['POST'])
-def create_expense(request):
-    expense_data = {
-        'owner': request.user.pk,
-        'amount': request.data['amount'],
-        'category': request.data['category'],
-        'content': request.data['content'],
-        'date': request.data['date'],
-        'source': request.data['source']
+    serializer_class = ExpenseSerializer
+    permission_classes_by_action = {
+        "get_paginated_expenses": [IsAuthenticated, IsOwnerOnly],
+        "line_chart_data": [IsAuthenticated, IsOwnerOnly],
+        "expenses_by_month_bar_chart_data": [IsAuthenticated, IsOwnerOnly],
+        "expenses_by_week_bar_chart_data": [IsAuthenticated, IsOwnerOnly],
+        "total_expenses_pie_chart_data": [IsAuthenticated, IsOwnerOnly],
+        "monthly_expenses_pie_chart_data": [IsAuthenticated, IsOwnerOnly],
+        "statistics_table_data": [IsAuthenticated, IsOwnerOnly],
     }
+    
+    def list(self, request):
+        """
+        API endpoint that allows users to get their expenses.
+        """
+        expenses = Expense.objects.filter(
+            owner=request.user).order_by("-date")
+        serializer = ExpenseSerializer(expenses, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    serializer = ExpenseSerializer(data=expense_data)
 
-    if serializer.is_valid():
-        serializer.save()
+    def create(self, request):
+        serializer = ExpenseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save(owner=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, pk):
+        expense = get_object_or_404(Expense, pk=pk)
+        
+        serializer = ExpenseSerializer(expense, data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-@api_view(['PUT'])
-def update_expense(request, pk):
-    expense = get_object_or_404(Expense, pk=pk)
-    expense_data = {
-        'owner': request.user.pk,
-        'amount': request.data['amount'],
-        'category': request.data['category'],
-        'content': request.data['content'],
-        'date': request.data['date'],
-        'source': request.data['source']
-    }
-    serializer = ExpenseSerializer(expense, data=expense_data)
-
-    if serializer.is_valid():
-        serializer.save()
+        serializer.save(owner=request.user)
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def destroy(self, request, pk):
+        expense = get_object_or_404(Expense, pk=pk)
+        expense.delete(ownser=request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['DELETE'])
-def delete_expense(request, pk):
-    expense = get_object_or_404(Expense, pk=pk)
-    expense.delete()
-    return Response({'detail': 'Expense deleted successfully'},
-                    status=status.HTTP_204_NO_CONTENT)
+    @action(detail=False, methods=['get'], url_path='paginated-expenses')
+    def get_paginated_expenses(self, request):
+        """
+        Returns the authenticated user's expenses in a paginated format.
+        Supports query params:
+        - page: page number
+        - page_size: number of items per page (max 100)
+        """
+        from apps.common.pagination import StandardResultsSetPagination
 
-@api_view(['GET'])
-def line_chart_data(request):
-    user_expenses = Expense.objects.filter(owner=request.user)
-    expenses = user_expenses
+        expenses = Expense.objects.filter(
+            owner=request.user).order_by("-date")
 
-    dates = [exp.date for exp in expenses]
-    dates = [utils.reformat_date(date, "%d' %b") for date in dates]
-    dates.reverse()
+        # Initialize the pagination
+        paginator = StandardResultsSetPagination()
 
-    amounts = [round(float(exp.amount), 2) for exp in expenses]
-    amounts.reverse()
+        # Paginate the queryset
+        paginated_queryset = paginator.paginate_queryset(expenses, request)
 
-    chart_data = {}
+        # Serialize the paginated result
+        serializer = ExpenseSerializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
-    for i in range(len(dates)):
-        if dates[i] not in chart_data:
-            chart_data[dates[i]] = amounts[i]
-        else:
-            chart_data[dates[i]] += amounts[i]
-    return Response(chart_data)
+    @action(detail=False, methods=['get'], url_path='line-chart-data')
+    def line_chart_data(self, request):
+        user_expenses = Expense.objects.filter(owner=request.user)
+        expenses = user_expenses
 
+        dates = [exp.date for exp in expenses]
+        dates = [utils.reformat_date(date, "%d' %b") for date in dates]
+        dates.reverse()
 
-@api_view(['GET'])
-def expenses_by_month_bar_chart_data(request):
-    user_expenses = Expense.objects.filter(owner=request.user)
-    current_year = utils.get_year_num()
-    last_year = current_year - 1
+        amounts = [round(float(exp.amount), 2) for exp in expenses]
+        amounts.reverse()
 
-    last_year_month_expenses = utils.get_yearly_month_expense_data(
-        last_year, user_expenses
-    )
-    current_year_month_expenses = utils.get_yearly_month_expense_data(
-        current_year, user_expenses
-    )
-    chart_data = {**last_year_month_expenses, **current_year_month_expenses}
-    return Response(chart_data)
+        chart_data = {}
 
+        for i in range(len(dates)):
+            if dates[i] not in chart_data:
+                chart_data[dates[i]] = amounts[i]
+            else:
+                chart_data[dates[i]] += amounts[i]
+        return Response(chart_data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def expenses_by_week_bar_chart_data(request):
-    weeks = ["current week", "last week", "2 weeks ago", "3 weeks ago"]
-    weeks.reverse()
+    @action(detail=False, methods=['get'], url_path='expenses-by-month-bar-chart-data')
+    def expenses_by_month_bar_chart_data(self, request):
+        user_expenses = Expense.objects.filter(owner=request.user)
+        current_year = utils.get_year_num()
+        last_year = current_year - 1
 
-    expenses = [
-        Expense.objects.get_weekly_expense_sum(request.user),
-        Expense.objects.get_weekly_expense_sum(request.user, -1),
-        Expense.objects.get_weekly_expense_sum(request.user, -2),
-        Expense.objects.get_weekly_expense_sum(request.user, -3),
-    ]
-    expenses.reverse()
+        last_year_month_expenses = utils.get_yearly_month_expense_data(
+            last_year, user_expenses
+        )
+        current_year_month_expenses = utils.get_yearly_month_expense_data(
+            current_year, user_expenses
+        )
+        chart_data = {**last_year_month_expenses, **current_year_month_expenses}
+        return Response(chart_data, status=status.HTTP_200_OK)
 
-    chart_data = {}
-    for i, week in enumerate(weeks):
-        chart_data[week] = expenses[i]
-    return Response(chart_data)
+    @action(detail=False, methods=['get'], url_path='expenses-by-week-bar-chart-data')
+    def expenses_by_week_bar_chart_data(self, request):
+        weeks = ["current week", "last week", "2 weeks ago", "3 weeks ago"]
+        weeks.reverse()
 
+        expenses = [
+            Expense.objects.get_weekly_expense_sum(request.user),
+            Expense.objects.get_weekly_expense_sum(request.user, -1),
+            Expense.objects.get_weekly_expense_sum(request.user, -2),
+            Expense.objects.get_weekly_expense_sum(request.user, -3),
+        ]
+        expenses.reverse()
 
-@api_view(['GET'])
-def total_expenses_pie_chart_data(request):
-    user_expenses = Expense.objects.filter(owner=request.user)
+        chart_data = {}
+        for i, week in enumerate(weeks):
+            chart_data[week] = expenses[i]
+        return Response(chart_data, status=status.HTTP_200_OK)
 
-    chart_data = {}
-    for exp in user_expenses:
-        if exp.category not in chart_data:
-            chart_data[exp.category] = float(exp.amount)
-        else:
-            chart_data[exp.category] += float(exp.amount)
+    @action(detail=False, methods=['get'], url_path='total-expenses-pie-chart-data')
+    def total_expenses_pie_chart_data(self, request):
+        user_expenses = Expense.objects.filter(owner=request.user)
 
-    for category, amount in chart_data.items():
-        chart_data[category] = round(amount, 2)
-    return Response(chart_data)
+        chart_data = {}
+        for exp in user_expenses:
+            if exp.category not in chart_data:
+                chart_data[exp.category] = float(exp.amount)
+            else:
+                chart_data[exp.category] += float(exp.amount)
 
+        for category, amount in chart_data.items():
+            chart_data[category] = round(amount, 2)
+        return Response(chart_data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def monthly_expenses_pie_chart_data(request):
-    user_expenses = Expense.objects.filter(owner=request.user)
+    @action(detail=False, methods=['get'], url_path='monthly-expenses-pie-chart-data')
+    def monthly_expenses_pie_chart_data(self, request):
+        user_expenses = Expense.objects.filter(owner=request.user)
 
-    month_num = utils.get_month_num()
-    monthly_expenses = user_expenses.filter(date__month=month_num)
+        month_num = utils.get_month_num()
+        monthly_expenses = user_expenses.filter(date__month=month_num)
 
-    chart_data = {}
-    for exp in monthly_expenses:
-        if exp.category not in chart_data:
-            chart_data[exp.category] = float(exp.amount)
-        else:
-            chart_data[exp.category] += float(exp.amount)
+        chart_data = {}
+        for exp in monthly_expenses:
+            if exp.category not in chart_data:
+                chart_data[exp.category] = float(exp.amount)
+            else:
+                chart_data[exp.category] += float(exp.amount)
 
-    for category, amount in chart_data.items():
-        chart_data[category] = round(amount, 2)
-    return Response(chart_data)
+        for category, amount in chart_data.items():
+            chart_data[category] = round(amount, 2)
+        return Response(chart_data, status=status.HTTP_200_OK)
 
-
-@api_view(['GET'])
-def statistics_table_data(request):
-    statistics = Expense.objects.get_statistics(request.user)
-    stats = {
-        "sum_expense": float(statistics['sum_expense']),
-        'max_expense': float(statistics['max_expense'].amount),
-        "max_expense_content": statistics['max_expense_content'],
-        "min_expense": float(statistics['min_expense'].amount),
-        "min_expense_content": statistics['min_expense_content'],
-        "biggest_category_expenditure": statistics['biggest_category_expenditure'],
-        "smallest_category_expenditure": statistics['smallest_category_expenditure'],
-        "monthly_percentage_diff": float(statistics['monthly_percentage_diff']),
-        "monthly_expense_average": float(statistics['monthly_expense_average']),
-        "daily_expense_average": float(statistics['daily_expense_average']),
-        "curr_month_expense_sum": float(statistics['curr_month_expense_sum']),
-        "one_month_ago_expense_sum": float(statistics['one_month_ago_expense_sum']),
-    }
-    return Response(stats)
-
-
-@api_view(['POST'])
-def add_testuser_data(request):
-    user = str(request.user)
-
-    if user == "testuser1" or user == "testuser3":
-        req_post_dict = dict(request.POST)
-        expenses_str_dict = req_post_dict["expenses"][0]
-        expenses = json.loads(expenses_str_dict)
-
-        Expense.objects.create_test_expenses(request.user, expenses)
-        return Response({"message": f"{len(expenses)} expenses created"},
-                        status=status.HTTP_201_CREATED)
-
-    return Response({'detail': 'Testuser expenses created successfully'},
-                    status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(['DELETE'])
-def delete_testuser_data(request):
-    """Function to remove all data from testusers that can be access via url by tests."""
-    Expense.objects.delete_testuser_expenses(request)
-    Expense.objects.delete_testuser_budget(request)
-
-    return Response({'detail': 'Testuser data deleted successfully'},
-                    status=status.HTTP_204_NO_CONTENT)
+    @action(detail=False, methods=['get'], url_path='statistics-table-data')
+    def statistics_table_data(self, request):
+        statistics = Expense.objects.get_statistics(request.user)
+        stats = {
+            "sum_expense": float(statistics['sum_expense']),
+            'max_expense': float(statistics['max_expense'].amount),
+            "max_expense_content": statistics['max_expense_content'],
+            "min_expense": float(statistics['min_expense'].amount),
+            "min_expense_content": statistics['min_expense_content'],
+            "biggest_category_expenditure": statistics['biggest_category_expenditure'],
+            "smallest_category_expenditure": statistics['smallest_category_expenditure'],
+            "monthly_percentage_diff": float(statistics['monthly_percentage_diff']),
+            "monthly_expense_average": float(statistics['monthly_expense_average']),
+            "daily_expense_average": float(statistics['daily_expense_average']),
+            "curr_month_expense_sum": float(statistics['curr_month_expense_sum']),
+            "one_month_ago_expense_sum": float(statistics['one_month_ago_expense_sum']),
+        }
+        return Response(stats, status=status.HTTP_200_OK)

@@ -1,59 +1,59 @@
 from django.shortcuts import get_object_or_404
 
+from drf_spectacular.utils import extend_schema
+
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 
 from apps.modules.budgets.models import Budget
 from apps.modules.budgets.serializers import BudgetSerializer
+from apps.common.exceptions import NotFoundException
+from apps.core.viewsets import AuthViewSet
 
-# Create your views here.
-
-
-@api_view(['GET'])
-def get_budget(request):
-    budget = Budget.objects.filter(owner=request.user).first()
-    if(budget):
+@extend_schema(tags=['Budgets'])
+class BudgetViewSet(AuthViewSet):
+    """
+    API for managing budgets.
+    """
+    serializer_class = BudgetSerializer
+    
+    def list(self, request):
+        budget = Budget.objects.filter(owner=request.user).first()
+        if not budget:
+            raise NotFoundException()
+        
         serializer = BudgetSerializer(budget)
-        return Response(serializer.data)
-    else:
-        return Response({'detail': 'Budget not found'},
-                        status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def create(self, request):
+        amount = request.data.get('amount', None)
+        if amount is None:
+            raise ParseError(detail="Missing required field: 'amount'.")
 
-@api_view(['POST'])
-def create_budget(request):
-    budget_data = {
-        'amount': request.data['amount'],
-        'owner': request.user.pk
-    }
+        serializer = BudgetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user)
 
-    serializer = BudgetSerializer(data=budget_data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, pk):
+        budget = get_object_or_404(Budget, pk=pk)
 
-@api_view(['PUT'])
-def update_budget(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)
-    budget_data = {
-        'owner': request.user.pk,
-        'amount': request.data['amount'],
-    }
-    serializer = BudgetSerializer(budget, data=budget_data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
+        amount = request.data.get('amount')
+        if amount is None:
+            raise ParseError("Missing required field: 'amount'.")
 
+        serializer = BudgetSerializer(budget, request.data, partial=False)
 
-@api_view(['DELETE'])
-def delete_budget(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)
-    budget.delete()
-    return Response({'detail': 'Budget deleted successfully'},
-                    status=status.HTTP_204_NO_CONTENT)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user)
+
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+    def destroy(self, request, pk):
+        budget = get_object_or_404(Budget, pk=pk)
+
+        budget.delete(owner=request.user)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

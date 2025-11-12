@@ -19,9 +19,10 @@ isort = "*"
 black = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
-djangorestframework-simplejwt = "*"
 psycopg2-binary = "*"
 dj-rest-auth = "*"
+drf-spectacular = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 

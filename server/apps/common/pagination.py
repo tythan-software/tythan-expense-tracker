@@ -6,9 +6,10 @@ Pagination module for the application.
 from rest_framework.pagination import PageNumberPagination
 
 
-class Pagination(PageNumberPagination):
+class StandardResultsSetPagination(PageNumberPagination):
     """
-    Custom pagination class with adjustable page size.
+    Custom pagination class with default page size.
+    Can also read `?page_size=` from query params.
     """
 
     page_size = 10

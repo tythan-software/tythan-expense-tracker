@@ -4,4 +4,4 @@ from apps.modules.expenses.models import Expense
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
-        fields = '__all__'
+        fields = ['amount', 'content', 'date', 'category', 'source']

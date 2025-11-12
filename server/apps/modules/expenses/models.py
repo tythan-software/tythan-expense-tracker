@@ -9,42 +9,7 @@ from django.utils import timezone
 from apps.common import utils
 from apps.common.models import BaseModel
 
-# Create your models here.
-
-
 class ExpenseManager(models.Manager):
-    def add_testuser_expenses(self, request):
-        if str(request.user) == "testuser1":
-            test_user_expenses = Expense.objects.filter(owner=request.user)
-
-            if not test_user_expenses:
-                Expense.objects.create_test_expenses(request.user)
-
-    def create_test_expenses(self, owner, expenses=None):
-        if not expenses:
-            expenses_by_date = utils.get_data_from_json(
-                "expenses/data/expensesByDate.json"
-            )
-            eg = utils.ExpenseGenerator(expenses_by_date)
-            expenses = eg.generate_expenses()
-
-        for expense in expenses:
-            exp = self.model(
-                amount=expense["amount"],
-                content=expense["content"],
-                category=expense["category"],
-                source=expense["source"],
-                date=expense["date"],
-                owner=owner,
-            )
-            exp.save()
-
-    def delete_testuser_expenses(self, request):
-        if str(request.user) == "testuser1" or str(request.user) == "testuser3":
-
-            test_user_expenses = Expense.objects.filter(owner=request.user)
-            for expense in test_user_expenses:
-                expense.delete()
 
     def get_user_expenses(self, owner):
         return Expense.objects.filter(owner=owner)
@@ -250,7 +215,6 @@ class Expense(BaseModel):
         decimal_places=2,
         max_digits=10,
         validators=[MinValueValidator(Decimal("0.01")), ]
-
     )
     content = models.CharField(max_length=100, blank=False)
 
@@ -282,6 +246,5 @@ class Expense(BaseModel):
         """
         Meta options for Expense.
         """
-        
         db_table = "expenses"
         ordering = ["-date"]

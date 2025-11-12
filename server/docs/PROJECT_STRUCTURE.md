@@ -54,10 +54,7 @@ Expense-Tracker/
 │   │   │
 │   │   ├── products/       # Another module
 │   │   │   ├── ...
+│   ├── management/     # Data scripts
 │
 ├── static/             # Static files (For Admin panel)
 ├── media/              # User-uploaded files
-├── scripts/            # Management/automation scripts
-├── deployments/        # Isolate Dockerfiles and docker-compose files here.
-├── docs/
-│   └── swagger.yaml
