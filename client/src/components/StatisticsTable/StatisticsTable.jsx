@@ -2,6 +2,7 @@ import "./styles.css";
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { utils } from "../../utils";
 
 const StatisticsTable = ({ budgetData, statisticsData }) => {
   const navigate = useNavigate();
@@ -63,11 +64,11 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                   className='statistics'
                   data-test='stats-current-month-expenses'
                 >
-                  {`€ ${currentMonthExpenseSum}`}
+                  {utils.formatNumberToCurrency(currentMonthExpenseSum)}
 
                   {budget?.amount && (
                     <>
-                      {`/ € ${budget.amount} `}
+                      {`/ ${utils.formatNumberToCurrency(budget.amount)} `}
                       {budget.amount > currentMonthExpenseSum ? (
                         <span className='badge badge-pill badge-success mx-1'>
                           {" "}
@@ -107,7 +108,7 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                   className='statistics'
                   data-test='stats-last-month-expenses'
                 >
-                  {`€ ${oneMonthAgoExpenseSum}`}
+                  {utils.formatNumberToCurrency(oneMonthAgoExpenseSum)}
                 </td>
               </tr>
               <tr>
@@ -135,7 +136,7 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                   className='statistics'
                   data-test='stats-monthly-expense-average'
                 >
-                  € {monthlyExpenseAverage}
+                  {utils.formatNumberToCurrency(monthlyExpenseAverage)}
                 </td>
               </tr>
 
@@ -145,7 +146,7 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                   className='statistics'
                   data-test='stats-daily-expense-average'
                 >
-                  € {dailyExpenseAverage}
+                  {utils.formatNumberToCurrency(dailyExpenseAverage)}
                 </td>
               </tr>
               <tr>
@@ -155,7 +156,7 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                   data-test='stats-biggest-category-expense'
                 >
                   {biggestCategoryExpenseCategory}:
-                  <p className='black-font'>€ {biggestCategoryExpenseAmount}</p>
+                  <p className='black-font'>{utils.formatNumberToCurrency(biggestCategoryExpenseAmount)}</p>
                 </td>
               </tr>
               <tr>
@@ -166,7 +167,7 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                 >
                   {smallestCategoryExpenseCategory}:
                   <p className='black-font'>
-                    € {smallestCategoryExpenseAmount}
+                    {utils.formatNumberToCurrency(smallestCategoryExpenseAmount)}
                   </p>
                 </td>
               </tr>
@@ -174,20 +175,20 @@ const StatisticsTable = ({ budgetData, statisticsData }) => {
                 <td>Biggest expense:</td>
                 <td className='statistics' data-test='stats-biggest-expense'>
                   {maxExpenseContent}
-                  <p className='black-font'>€ {maxExpense}</p>
+                  <p className='black-font'>{utils.formatNumberToCurrency(maxExpense)}</p>
                 </td>
               </tr>
               <tr>
                 <td>Smallest expense:</td>
                 <td className='statistics' data-test='stats-smallest-expense'>
                   {minExpenseContent}
-                  <p className='black-font'>€ {minExpense}</p>
+                  <p className='black-font'>{utils.formatNumberToCurrency(minExpense)}</p>
                 </td>
               </tr>
               <tr className='font-weight-bold'>
                 <td>Total expenses:</td>
                 <td className='statistics' data-test='stats-total-expenses'>
-                  € {sumExpense}
+                  {utils.formatNumberToCurrency(sumExpense)}
                 </td>
               </tr>
             </tbody>

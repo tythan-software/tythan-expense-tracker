@@ -1,4 +1,4 @@
-const apiUrl = "http://127.0.0.1:8000/api";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 export class API {
   static async _fetch(url, accessToken) {
@@ -51,7 +51,7 @@ export class API {
     setInvalidCredentialsError,
   }) {
     try {
-      const res = await fetch(`${apiUrl}/login/`, {
+      const res = await fetch(`${apiUrl}/token/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -164,6 +164,21 @@ export class API {
     }
   }
 
+  static async fetchExpenseCategories(accessToken, setCategoriesFunc) {
+    try {
+      const res = await API._fetch(`${apiUrl}/expenses/expense-categories/`, accessToken);
+
+      if (res.ok) {
+        const jsonRes = await res.json();
+        setCategoriesFunc(jsonRes);
+      } else {
+        throw new Error("Fetching expense categories failed");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   static async fetchPaginatedExpenses({
     accessToken,
     paginationSuffix,
@@ -174,7 +189,7 @@ export class API {
     setNumPages,
   }) {
     try {
-      const url = `${apiUrl}/paginated-expenses/?page=${paginationSuffix}`;
+      const url = `${apiUrl}/expenses/paginated-expenses/?page=${paginationSuffix}`;
       const res = await API._fetch(url, accessToken);
 
       if (res.ok) {
@@ -213,7 +228,7 @@ export class API {
   ) {
     try {
       const res = await API._post(
-        `${apiUrl}/expenses/create/`,
+        `${apiUrl}/expenses/`,
         accessToken,
         body
       );
@@ -246,7 +261,7 @@ export class API {
   ) {
     try {
       const res = await API._update(
-        `${apiUrl}/expenses/update/${id}/`,
+        `${apiUrl}/expenses/${id}/`,
         accessToken,
         body
       );
@@ -269,7 +284,7 @@ export class API {
   static async deleteExpense(navigate, accessToken, id) {
     try {
       const res = await API._delete(
-        `${apiUrl}/expenses/delete/${id}/`,
+        `${apiUrl}/expenses/${id}/`,
         accessToken
       );
 
@@ -285,11 +300,11 @@ export class API {
 
   static async fetchBudget(accessToken, setBudgetFunc) {
     try {
-      const res = await API._fetch(`${apiUrl}/budget/`, accessToken);
+      const res = await API._fetch(`${apiUrl}/budgets/`, accessToken);
 
       if (res.ok) {
         const jsonRes = await res.json();
-        setBudgetFunc(jsonRes);
+        setBudgetFunc(jsonRes !== null && jsonRes.length > 0 ? jsonRes[0] : { amount: 0 });
       } else {
         throw new Error("Fetching expenses failed");
       }
@@ -301,7 +316,7 @@ export class API {
   static async createBudget(navigate, accessToken, body, setAmount) {
     try {
       const res = await API._post(
-        `${apiUrl}/budget/create/`,
+        `${apiUrl}/budgets/`,
         accessToken,
         body
       );
@@ -320,7 +335,7 @@ export class API {
   static async updateBudget(navigate, accessToken, id, body, setAmount) {
     try {
       const res = await API._update(
-        `${apiUrl}/budget/update/${id}/`,
+        `${apiUrl}/budgets/${id}/`,
         accessToken,
         body
       );
@@ -339,7 +354,7 @@ export class API {
   static async deleteBudget(navigate, accessToken, id) {
     try {
       const res = await API._delete(
-        `${apiUrl}/budget/delete/${id}/`,
+        `${apiUrl}/budgets/${id}/`,
         accessToken
       );
 
@@ -355,7 +370,7 @@ export class API {
 
   static async fetchLineChartData(accessToken, setLineChartData) {
     try {
-      const res = await API._fetch(`${apiUrl}/line-chart-data/`, accessToken);
+      const res = await API._fetch(`${apiUrl}/expenses/line-chart-data/`, accessToken);
       if (res.ok) {
         const expenseData = await res.json();
         setLineChartData(expenseData);
@@ -370,7 +385,7 @@ export class API {
   static async fetchExpensesByMonthData(accessToken, setExpensesByMonth) {
     try {
       const res = await API._fetch(
-        `${apiUrl}/expenses-by-month-bar-chart-data/`,
+        `${apiUrl}/expenses/expenses-by-month-bar-chart-data/`,
         accessToken
       );
       if (res.ok) {
@@ -387,7 +402,7 @@ export class API {
   static async fetchExpensesByWeekData(accessToken, setExpensesByWeek) {
     try {
       const res = await API._fetch(
-        `${apiUrl}/expenses-by-week-bar-chart-data/`,
+        `${apiUrl}/expenses/expenses-by-week-bar-chart-data/`,
         accessToken
       );
       if (res.ok) {
@@ -404,7 +419,7 @@ export class API {
   static async fetchTotalExpensesData(accessToken, setTotalExpenses) {
     try {
       const res = await API._fetch(
-        `${apiUrl}/total-expenses-pie-chart-data/`,
+        `${apiUrl}/expenses/total-expenses-pie-chart-data/`,
         accessToken
       );
       if (res.ok) {
@@ -421,7 +436,7 @@ export class API {
   static async fetchMonthlyExpensesData(accessToken, setMonthlyExpenses) {
     try {
       const res = await API._fetch(
-        `${apiUrl}/monthly-expenses-pie-chart-data/`,
+        `${apiUrl}/expenses/monthly-expenses-pie-chart-data/`,
         accessToken
       );
       if (res.ok) {
@@ -438,7 +453,7 @@ export class API {
   static async fetchStatisticsData(accessToken, setStatisticsData) {
     try {
       const res = await API._fetch(
-        `${apiUrl}/statistics-table-data/`,
+        `${apiUrl}/expenses/statistics-table-data/`,
         accessToken
       );
       if (res.ok) {

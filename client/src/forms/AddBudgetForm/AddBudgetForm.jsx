@@ -10,22 +10,14 @@ const AddBudgetForm = () => {
     JSON.parse(localStorage.getItem("accessToken"))
   );
   const [amount, setAmount] = useState(0);
-  const [budgetTooHighError, setBudgetTooHighError] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (amount > 999999) {
-      setBudgetTooHighError(true);
-    } else {
-      API.createBudget(navigate, accessToken, JSON.stringify({ amount }), setAmount);
-    }
+    API.createBudget(navigate, accessToken, JSON.stringify({ amount }), setAmount);
   };
 
   return (
     <>
-      {budgetTooHighError && (
-        <p>Ensure that budget amount is not higher than 999,999.</p>
-      )}
       <CustomForm
         title='Create Budget:'
         cancelBtn={true}
@@ -36,7 +28,7 @@ const AddBudgetForm = () => {
         <p>
           <label>Amount:</label>
           <input
-            type='text'
+            type='number'
             name='amount'
             className='form-control'
             value={amount}

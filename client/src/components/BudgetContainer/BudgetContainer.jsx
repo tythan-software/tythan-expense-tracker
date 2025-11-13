@@ -2,24 +2,25 @@ import "./styles.css";
 
 import React, { useState, useEffect } from "react";
 import { API } from "../../api-service";
+import { utils } from "../../utils";
 
 const BudgetContainer = () => {
-  const [accessToken, setAccessToken] = useState(
+  const [accessToken] = useState(
     JSON.parse(localStorage.getItem("accessToken"))
   );
 
   const [budget, setBudget] = useState(0);
-  const [expenses, setExpenses] = useState([{ amount: 0 }]);
-
-  const currentMonthExpenses = 20;
-  const amountOverBudget = currentMonthExpenses - budget;
-  const expenseVsBudgetPercentageDiff =
-    (currentMonthExpenses / budget.amount) * 100;
+  const [statisticsData, setStatisticsData] = useState({});
+  const [currentMonthExpenses, setCurrentMonthExpenses] = useState(0);
 
   useEffect(() => {
     API.fetchBudget(accessToken, setBudget);
-    API.fetchExpenses(accessToken, setExpenses);
+    API.fetchStatisticsData(accessToken, setStatisticsData);
   }, []);
+
+  useEffect(() => {
+    setCurrentMonthExpenses(statisticsData?.curr_month_expense_sum ?? 0);
+  }, [statisticsData]);
 
   return (
     <>
@@ -38,7 +39,7 @@ const BudgetContainer = () => {
                     : "bg-success"
                 }`}
                 role='progressbar'
-                style={{ width: `${expenseVsBudgetPercentageDiff}%` }}
+                style={{ width: `${(currentMonthExpenses / budget.amount) * 100}%` }}
                 aria-valuenow='50'
                 aria-valuemin='0'
                 aria-valuemax='100'
@@ -51,7 +52,7 @@ const BudgetContainer = () => {
             >
               Monthly budget:
               <div>
-                € {budget.amount}
+                <span>{utils.formatNumberToCurrency(budget.amount)}</span>
                 <a
                   href={`/update-budget/${budget.id}`}
                   className='font-weight-bold'
@@ -72,10 +73,10 @@ const BudgetContainer = () => {
             <div style={{ color: "green" }}>
               Current month expenses:
               <div>
-                € {currentMonthExpenses}
-                {currentMonthExpenses > budget && (
+                {utils.formatNumberToCurrency(currentMonthExpenses)}
+                {currentMonthExpenses > budget.amount && (
                   <p style={{ color: "red", float: "right" }}>
-                    (€ {amountOverBudget} over budget)
+                    ({utils.formatNumberToCurrency(currentMonthExpenses - budget.amount)} over budget)
                   </p>
                 )}
               </div>

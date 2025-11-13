@@ -42,7 +42,7 @@ const Home = ({ accessToken }) => {
     <>
       <div className='buttons-container'>
         <AddExpenseButton />
-        {!budget.amount && <AddBudgetButton />}
+        {!budget ? <AddBudgetButton /> : null}
       </div>
 
       {statisticsData.sum_expense && (
@@ -53,8 +53,7 @@ const Home = ({ accessToken }) => {
 
       {expenses.length === 0 && <Instructions />}
 
-      {budget.amount > 0 && <BudgetContainer />}
-
+      {budget && <BudgetContainer />}
       {expenses.length < 2 ? (
         <h5 className='text-center instruction'>
           When you have 2 or more expenses your line chart will be displayed.
@@ -64,7 +63,7 @@ const Home = ({ accessToken }) => {
           chartData={lineChartData}
           title={"Total amount spent per day"}
           xLabel={"Dates"}
-          yLabel={"(€) Amounts"}
+          yLabel={"Amounts (đ)"}
         />
       )}
 

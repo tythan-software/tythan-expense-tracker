@@ -35,14 +35,12 @@ const UserGreet = ({ isAuthenticated, setAccessToken }) => {
             onClick={handleLogout}
             data-test='logout-link'
           >
-            Log Out
+            Logout
           </span>
         </p>
       ) : (
         <>
-          <p>You are not logged in.</p>
-          <a className="user-greet-link" onClick={() => navigate("/accounts/signup")}>Sign Up</a> |
-          <a className="user-greet-link" onClick={() => navigate("/accounts/login")}> Log In</a>
+          <a className="user-greet-link" onClick={() => navigate("/accounts/login")}></a>
         </>
       )}
     </div>

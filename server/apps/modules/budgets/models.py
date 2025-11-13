@@ -10,7 +10,7 @@ class Budget(BaseModel):
     amount = models.DecimalField(
         default=10,
         decimal_places=2,
-        max_digits=5,
+        max_digits=10,
         validators=[MinValueValidator(Decimal("0.01"))],
     )
     owner = models.OneToOneField(User, on_delete=models.CASCADE)

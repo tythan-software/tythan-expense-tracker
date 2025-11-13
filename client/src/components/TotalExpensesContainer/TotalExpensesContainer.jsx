@@ -1,3 +1,4 @@
+import { utils } from "../../utils";
 import "./styles.css";
 
 import React from "react";
@@ -9,7 +10,7 @@ const TotalExpensesContainer = ({totalExpenseAmount}) => {
       id='total-expenses-container'
       className='total-expenses-container m-auto'
     >
-      Total expenses: <span>€{totalExpenseAmount}</span>
+      Total expenses: <span>{utils.formatNumberToCurrency(totalExpenseAmount)}</span>
     </div>
   );
 };

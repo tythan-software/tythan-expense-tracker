@@ -143,7 +143,7 @@ def get_yearly_month_expense_data(year, user_expenses):
                 yearly_month_expense_data[month + year_suffix] = monthly_expenses_sum
     return yearly_month_expense_data
 
-
+    
 class DateGenerator:
     """
     Class with static methods that generate various needed dates.

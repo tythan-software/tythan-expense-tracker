@@ -7,6 +7,7 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from apps.common import utils
+from apps.common.constants import ExpenseCategory
 from apps.common.models import BaseModel
 
 class ExpenseManager(models.Manager):
@@ -233,18 +234,10 @@ class Expense(BaseModel):
         validators=[MinValueValidator(Decimal("0.01")), ]
     )
     content = models.CharField(max_length=100, blank=False)
-
-    CATEGORY_CHOICES = (
-        ("Bar tabs", "Bar tabs"),
-        ("Monthly bill", "Monthly bill"),
-        ("Online shopping", "Online shopping"),
-        ("Electronics", "Electronics"),
-        ("Groceries", "Groceries"),
-        ("Taxi fare", "Taxi fare"),
-        ("Miscellaneous", "Miscellaneous"),
-    )
     category = models.CharField(
-        max_length=20, choices=CATEGORY_CHOICES, null=True, blank=False)
+        max_length=50, 
+        choices=ExpenseCategory.choices,
+        default=ExpenseCategory.OTHER,)
     source = models.CharField(max_length=30, blank=False)
     date = models.DateTimeField(default=timezone.now, blank=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -252,7 +245,7 @@ class Expense(BaseModel):
     objects = ExpenseManager()
 
     def __str__(self):
-        return str(self.amount)
+        return f"{self.category} - {self.amount}"
 
     def get_date_without_time(self):
         """

@@ -1,17 +1,37 @@
 import React from "react";
 import { Pie } from "react-chartjs-2";
 
+const formatCurrency = (amount) =>
+  amount?.toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    minimumFractionDigits: 0,
+  }) || "₫0";
+
 const PieChart = ({ chartData, title }) => {
   const categories = Object.keys(chartData);
   const amounts = Object.values(chartData);
 
   const options = {
-    responsive: true,
-    title: {
-      display: true,
-      text: title,
+  responsive: true,
+  legend: {
+    position: "bottom",
+  },
+  title: {
+    display: true,
+    text: title,
+  },
+  tooltips: {
+    callbacks: {
+      label: function (tooltipItem, data) {
+        const dataset = data.datasets[tooltipItem.datasetIndex];
+        const value = dataset.data[tooltipItem.index];
+        const label = data.labels[tooltipItem.index] || "";
+        return `${label}: ${formatCurrency(value)}`; // e.g., "12.000.000 ₫"
+      },
     },
-  };
+  },
+};
 
   const data = {
     labels: categories,

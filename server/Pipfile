@@ -23,6 +23,7 @@ psycopg2-binary = "*"
 dj-rest-auth = "*"
 drf-spectacular = "*"
 djangorestframework-simplejwt = "*"
+pytz = "*"
 
 [dev-packages]
 

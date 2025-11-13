@@ -16,9 +16,9 @@ const UpdateExpenseForm = () => {
 
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState(0);
+  const [categories, setCategories] = useState([]);
   const [content, setContent] = useState(0);
   const [date, setDate] = useState(0);
-  const [source, setSource] = useState(0);
 
   const [amountZeroError, setAmountZeroError] = useState(false);
   const [amountTooHighError, setAmountTooHighError] = useState(false);
@@ -26,6 +26,7 @@ const UpdateExpenseForm = () => {
 
   useEffect(() => {
     API.fetchExpenses(accessToken, setExpenses);
+    API.fetchExpenseCategories(accessToken, setCategories);
   }, []);
 
   useEffect(() => {
@@ -36,7 +37,6 @@ const UpdateExpenseForm = () => {
       setCategory(expenseToUpdate.category);
       setContent(expenseToUpdate.content);
       setDate(removeTimeFromDateTimeStr(expenseToUpdate.date));
-      setSource(expenseToUpdate.source);
     }
   }, [expenses]);
 
@@ -61,12 +61,11 @@ const UpdateExpenseForm = () => {
         navigate, 
         accessToken,
         id,
-        JSON.stringify({ amount, category, content, date, source }),
+        JSON.stringify({ amount, category, content, date }),
         setAmount,
         setCategory,
         setContent,
         setDate,
-        setSource
       );
     }
   };
@@ -108,15 +107,13 @@ const UpdateExpenseForm = () => {
             value={category}
           >
             <option value=''>
-              ---------
+              -- Select Category --
             </option>
-            <option value='Bar tabs'>Bar tabs</option>
-            <option value='Monthly bill'>Monthly bill</option>
-            <option value='Online shopping'>Online shopping</option>
-            <option value='Electronics'>Electronics</option>
-            <option value='Groceries'>Groceries</option>
-            <option value='Taxi fare'>Taxi fare</option>
-            <option value='Miscellaneous'>Miscellaneous</option>
+            {categories.map((category) => (
+              <option key={category.key} value={category.value}>
+                {category.label}
+              </option>
+            ))}
           </select>
         </p>
         <p>
@@ -128,17 +125,6 @@ const UpdateExpenseForm = () => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             data-test='expense-input-content'
-          ></input>
-        </p>
-        <p>
-          <label>Source:</label>
-          <input
-            type='text'
-            name='source'
-            className='form-control'
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-            data-test='expense-input-source'
           ></input>
         </p>
         <p>

@@ -1,20 +1,5 @@
+import { utils } from "../../utils";
 import "./styles.css";
-
-import React from "react";
-
-
-const formatDateToYYYYMMDD = (dateString) => {
-  const inputDate = new Date(dateString);
-
-  // Get the components of the date (year, month, day)
-  const year = inputDate.getFullYear();
-  const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so add 1
-  const day = String(inputDate.getDate()).padStart(2, "0");
-
-  // Create the formatted date string
-  const formattedDateString = `${year}-${month}-${day}`;
-  return formattedDateString;
-};
 
 const ExpenseTable = ({ expenses = [] }) => {
   return (
@@ -23,7 +8,6 @@ const ExpenseTable = ({ expenses = [] }) => {
         <thead>
           <tr>
             <th scope='col'>Date</th>
-            <th scope='col'>Source</th>
             <th scope='col'>Category</th>
             <th scope='col'>Content</th>
             <th scope='col'>Amount</th>
@@ -37,11 +21,10 @@ const ExpenseTable = ({ expenses = [] }) => {
             expenses.map((expense, i) => {
               return (
                 <tr key={i}>
-                  <td>{formatDateToYYYYMMDD(expense.date)}</td>
-                  <td>{expense.source}</td>
+                  <td>{expense.date}</td>
                   <td>{expense.category}</td>
                   <td>{expense.content}</td>
-                  <td>€ {expense.amount}</td>
+                  <td>{utils.formatNumberToCurrency(expense.amount)}</td>
                   <td className='font-weight-bold'>
                     <a
                       href={`/update-expense/${expense.id}/`}

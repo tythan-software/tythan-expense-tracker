@@ -1,7 +1,7 @@
-from rest_framework import serializers
+from apps.common.serializers import LocalizedModelSerializer
 from apps.modules.users.models import User
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(LocalizedModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'password']

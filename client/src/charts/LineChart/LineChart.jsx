@@ -10,6 +10,18 @@ const LineChart = ({ chartData, title, xLabel, yLabel }) => {
     legend: {
       display: false,
     },
+    tooltips: {
+      callbacks: {
+        label: function (tooltipItem, data) {
+          const value = tooltipItem.yLabel || 0;
+          return value.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+            minimumFractionDigits: 0,
+          });
+        },
+      },
+    },
     scales: {
       xAxes: [
         {
@@ -24,6 +36,16 @@ const LineChart = ({ chartData, title, xLabel, yLabel }) => {
           scaleLabel: {
             display: true,
             labelString: yLabel,
+          },
+          ticks: {
+            // 💰 Format Y-axis labels as VND
+            callback: function (value) {
+              return value.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+              });
+            },
           },
         },
       ],

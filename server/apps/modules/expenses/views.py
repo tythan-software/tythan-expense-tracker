@@ -10,15 +10,17 @@ from rest_framework.permissions import IsAuthenticated
 from apps.core.viewsets import AuthViewSet
 from apps.common import utils
 from apps.common.permissions import IsOwnerOnly
+from apps.common.constants import ExpenseCategory
 from apps.modules.expenses.models import Expense
-from apps.modules.expenses.serializers import ExpenseSerializer
+from apps.modules.expenses.serializers import ExpenseSerializer, ExpenseCreateOrUpdateSerializer
+
 
 @extend_schema(tags=['Expenses'])
 class ExpenseViewSet(AuthViewSet):
     """
     API for managing user expenses.
     """
-    serializer_class = ExpenseSerializer
+    serializer_class = ExpenseCreateOrUpdateSerializer
     permission_classes_by_action = {
         "get_paginated_expenses": [IsAuthenticated, IsOwnerOnly],
         "line_chart_data": [IsAuthenticated, IsOwnerOnly],
@@ -43,6 +45,10 @@ class ExpenseViewSet(AuthViewSet):
         serializer = ExpenseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        category = serializer.validated_data.get('category', None)
+        if category and category not in ExpenseCategory.values:
+            request.data['category'] = ExpenseCategory.OTHER
+
         serializer.save(owner=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -57,8 +63,21 @@ class ExpenseViewSet(AuthViewSet):
 
     def destroy(self, request, pk):
         expense = get_object_or_404(Expense, pk=pk)
-        expense.delete(ownser=request.user)
+        expense.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'], url_path='expense-categories')
+    def get_expense_categories(self, request):
+        """
+        Returns a list of all available expense categories.
+        """
+        categories = [
+            {"key": category.name, "value": category.value, "label": category.label}
+            for category in ExpenseCategory
+        ]
+
+        return Response(categories, status=status.HTTP_200_OK
+        )
 
     @extend_schema(
         parameters=[
@@ -188,7 +207,7 @@ class ExpenseViewSet(AuthViewSet):
     def statistics_table_data(self, request):
         statistics = Expense.objects.get_statistics(request.user)
         stats = {
-            "sum_expense": float(statistics['sum_expense']),
+            "sum_expense":  float(statistics['sum_expense']),
             'max_expense': float(statistics['max_expense'].amount),
             "max_expense_content": statistics['max_expense_content'],
             "min_expense": float(statistics['min_expense'].amount),

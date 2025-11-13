@@ -11,6 +11,18 @@ const BarChart = ({ chartData, title, singleColor = true }) => {
     legend: {
       display: false,
     },
+    tooltips: {
+      callbacks: {
+        label: function (tooltipItem, data) {
+          const value = tooltipItem.yLabel;
+          return value.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+            minimumFractionDigits: 0,
+          });
+        },
+      },
+    },
     title: {
       display: true,
       text: title,
@@ -20,6 +32,13 @@ const BarChart = ({ chartData, title, singleColor = true }) => {
         {
           ticks: {
             beginAtZero: true,
+            callback: function (value) {
+              return value.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+              });
+            },
           },
         },
       ],
