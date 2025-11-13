@@ -10,11 +10,16 @@ from apps.common import utils
 from apps.common.models import BaseModel
 
 class ExpenseManager(models.Manager):
+    """
+    Manager for Expense model with various utility methods.
+    """
 
     def get_user_expenses(self, owner):
+        """Returns all expenses of a user."""
         return Expense.objects.filter(owner=owner)
-
+  
     def get_total_expenses(self, owner):
+        """Returns the total expenses of a user."""
         total_expenses = self.get_user_expenses(owner).aggregate(amount=Sum("amount"))[
             "amount"
         ]
@@ -75,6 +80,7 @@ class ExpenseManager(models.Manager):
         return utils.safely_round(monthly_expenses)
 
     def get_monthly_expense_average(self, owner):
+        """Returns the average monthly expenses of a user."""
         months = utils.get_months_list()
         monthly_expenses_data = []
 
@@ -100,6 +106,9 @@ class ExpenseManager(models.Manager):
         return monthly_expense_average
 
     def get_expense_amounts_by_category(self, owner):
+        """
+        Returns a dictionary with the total expenses for each category of a user.
+        """
         expense_amounts_by_category = {}
         for exp in self.get_user_expenses(owner):
             if exp.category not in expense_amounts_by_category:
@@ -165,7 +174,10 @@ class ExpenseManager(models.Manager):
         return percentage_diff
 
     def get_daily_expense_average(self, owner):
-        expenses = Expense.objects.filter(owner=owner).values("date", "amount")
+        """
+        Returns the average daily expenses of a user.
+        """
+        expenses = self.get_user_expenses(owner).values("date", "amount")
 
         date_and_amount_data = {}
         for exp in expenses:
@@ -185,6 +197,7 @@ class ExpenseManager(models.Manager):
         return daily_expense_average
 
     def get_statistics(self, owner):
+        """Returns a dictionary containing various expense statistics for a user."""
         statistics = {
             "sum_expense": self.get_total_expenses(owner),
             "max_expense": self.get_max_expense(owner),
@@ -209,6 +222,9 @@ class ExpenseManager(models.Manager):
 
 
 class Expense(BaseModel):
+    """
+    Model representing an expense entry.
+    """
     amount = models.DecimalField(
         blank=False,
         default=10,
@@ -239,6 +255,9 @@ class Expense(BaseModel):
         return str(self.amount)
 
     def get_date_without_time(self):
+        """
+        Returns the date of the expense without the time component.
+        """
         date_without_time = utils.reformat_date(self.date, "%Y-%m-%d")
         return date_without_time
 

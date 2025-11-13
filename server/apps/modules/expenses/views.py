@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 from rest_framework import status
 from rest_framework.decorators import action
@@ -60,6 +60,12 @@ class ExpenseViewSet(AuthViewSet):
         expense.delete(ownser=request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name="page", type=OpenApiTypes.INT, required=False),
+            OpenApiParameter(name="page_size", type=OpenApiTypes.INT, required=False),
+        ],
+    )
     @action(detail=False, methods=['get'], url_path='paginated-expenses')
     def get_paginated_expenses(self, request):
         """
@@ -75,6 +81,14 @@ class ExpenseViewSet(AuthViewSet):
 
         # Initialize the pagination
         paginator = StandardResultsSetPagination()
+
+        # Gracefully handle page_size override if provided and numeric
+        page = request.query_params.get("page")
+        page_size = request.query_params.get("page_size")
+        if page_size and page_size.isdigit():
+            paginator.page_size = min(int(page_size), paginator.max_page_size)
+        if page and page.isdigit():
+            paginator.page = int(page)
 
         # Paginate the queryset
         paginated_queryset = paginator.paginate_queryset(expenses, request)

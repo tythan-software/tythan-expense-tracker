@@ -6,12 +6,6 @@ from django.db import models
 
 from apps.common.models import BaseModel
 
-class BudgetManager(models.Manager):
-    def get_budget(self, owner):
-        budget = Budget.objects.filter(owner=owner).first()
-        return budget.amount if budget else 0
-    
-    
 class Budget(BaseModel):
     amount = models.DecimalField(
         default=10,
@@ -21,8 +15,6 @@ class Budget(BaseModel):
     )
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    objects = BudgetManager()
-
     def __str__(self):
         return str(self.amount)
     
@@ -30,5 +22,4 @@ class Budget(BaseModel):
         """
         Meta options for Budget.
         """
-        
         db_table = "budgets"

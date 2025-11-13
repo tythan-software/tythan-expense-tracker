@@ -24,15 +24,6 @@ class GlobalSuccessResponseMiddleware(MiddlewareMixin):
                     "data": response.data,
                 }
 
-                # Include pagination keys if they exist
-                if isinstance(response.data, dict):
-                    if "count" in response.data:
-                        wrapped_data["count"] = response.data.get("count")
-                    if "next" in response.data:
-                        wrapped_data["next"] = response.data.get("next")
-                    if "previous" in response.data:
-                        wrapped_data["previous"] = response.data.get("previous")
-
                 response.data = wrapped_data
                 response._is_wrapped = True
 
