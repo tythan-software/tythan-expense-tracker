@@ -18,25 +18,25 @@ Expense-Tracker/
 │   │   ├── prod.py     # Production overrides
 │   │   └── test.py     # Test-specific settings
 │
-├── apps/               # All Django apps live here
-│   ├── core/           # Only the "presentation" layer exists here.
+├── apps/                   # All Django apps live here
+│   ├── core/               # A folder containing core "stuff" for settings
 │   │   ├── __init__.py
-│   │   ├── auth.py     # Urls of django.contrib.auth
 │   │   ├── apps.py
-│   │   ├── urls.py
-│   │   ├── exceptions.py
-│   │   ├── middleware.py
-│   │   ├── pagination.py
+│   │   ├── urls.py         # The place registers url patterns across modules
+│   │   ├── exceptions.py   # Define how exception to respond
+│   │   ├── middleware.py   # Define successful API response
 │   │
-│   ├── common/          # A folder containing common "stuff" for the entire project
+│   ├── common/             # A folder containing common "stuff" for the entire project
 │   │   ├── __init__.py
-│   │   ├── models.py
-│   │   ├── serializers.py
-│   │   ├── utils.py
-│   │   ├── constants.py
+│   │   ├── apps.py
+│   │   ├── models.py       # Base model
+│   │   ├── constansts.py
+│   │   ├── pagination.py   # Custom pagination
+│   │   ├── permissions.py  # Permission defination
+│   │   ├── utils.py        # Helper methods
 │   │
 │   ├── modules/ 
-│   │   ├── users/          # Example module
+│   │   ├── users/          # Custom Django User
 │   │   │   ├── __init__.py
 │   │   |   ├── admin.py
 │   │   │   ├── models.py
@@ -44,7 +44,6 @@ Expense-Tracker/
 │   │   │   ├── urls.py
 │   │   │   ├── serializers.py
 │   │   │   ├── services.py       # Business logic (optional)
-│   │   │   ├── selectors.py      # Query helpers (optional)
 │   │   │   ├── tests/
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── test_models.py
@@ -52,8 +51,12 @@ Expense-Tracker/
 │   │   │   │   └── test_serializers.py
 │   │   │   └── migrations/
 │   │   │
-│   │   ├── products/       # Another module
+│   │   ├── auths/       # Wrapper JWT
 │   │   │   ├── ...
+│   │   │
+│   │   ├── expenses/    # Another module
+│   │   │   ├── ...
+│   │   
 │   ├── management/     # Data scripts
 │
 ├── static/             # Static files (For Admin panel)

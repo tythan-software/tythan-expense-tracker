@@ -8,7 +8,6 @@ from rest_framework.exceptions import ParseError
 
 from apps.modules.budgets.models import Budget
 from apps.modules.budgets.serializers import BudgetSerializer
-from apps.common.exceptions import NotFoundException
 from apps.core.viewsets import AuthViewSet
 
 @extend_schema(tags=['Budgets'])
@@ -19,11 +18,8 @@ class BudgetViewSet(AuthViewSet):
     serializer_class = BudgetSerializer
     
     def list(self, request):
-        budget = Budget.objects.filter(owner=request.user).first()
-        if not budget:
-            raise NotFoundException()
-        
-        serializer = BudgetSerializer(budget)
+        budget = Budget.objects.filter(owner=request.user)
+        serializer = BudgetSerializer(budget, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
